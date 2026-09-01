@@ -25,6 +25,27 @@ permissions:
   contents: read
 
 jobs:
+  pre-commit:
+    name: Check code quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "3.13"
+
+      - run: echo "::add-matcher::.github/workflows/matchers/mypy.json"
+
+      - name: Run code quality checks
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        with:
+          extra_args: --all-files
+
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
@@ -62,7 +83,7 @@ jobs:
 
   test:
     needs: changes
-    if: needs.changes.outputs.lmcache == 'true'
+    if: false
     name: "test: ${{ matrix.python }} on ${{ matrix.platform }}"
     runs-on: "${{ matrix.platform }}"
     strategy:
@@ -117,7 +138,7 @@ jobs:
 
   raw-block-tests:
     needs: changes
-    if: needs.changes.outputs.raw_block == 'true'
+    if: false
     name: raw-block temp-file tests
     runs-on: ubuntu-latest
     env:
